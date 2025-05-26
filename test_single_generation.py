@@ -58,7 +58,7 @@ def run_single_test():
         user_agent_api_cfg = API_PROVIDERS_CONFIG["my_custom_deepseek_v3"] #
         # 为了全面测试，也可以让Responder使用不同的API
         # responder_api_cfg = API_PROVIDERS_CONFIG["default_openrouter_gemini_flash"]
-        responder_api_cfg = API_PROVIDERS_CONFIG["my_custom_deepseek_v3"] #
+        responder_api_cfg = API_PROVIDERS_CONFIG["my_custom_deepseek_r1"] #
 
     except KeyError as e:
         logging.error(f"API配置 '{e}' 未在 config.py 的 API_PROVIDERS_CONFIG 中找到。请检查您的配置。")

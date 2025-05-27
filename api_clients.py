@@ -193,3 +193,108 @@ def get_llm_response(messages, api_config, max_retries=3):
 
     logger.debug(f"Dispatching to {provider_type} with model {api_config.get('model_id')}")
     return api_call_function(messages, api_config, max_retries)
+
+
+# 在 api_clients.py 文件顶部或合适位置导入
+import difflib
+import logging  # logging 应该已经存在
+
+# ... (文件中的其他代码) ...
+
+# 预定义的拒答模板
+REFUSAL_TEMPLATES_ZH = [
+    "作为一个人工智能语言模型，我还没有学习如何回答这个问题，您可以向我提问一些其它问题，我会尽力帮您结局的。",
+    # 您可以根据需要添加更多中文拒答模板的变体
+]
+REFUSAL_TEMPLATES_EN = [
+    "I'm sorry! As an AI language model, I don't know how to answer this question yet. You can ask me any questions about other topics, and I will try to deliver high quality and reliable information.",
+    "I'm sorry, but as an AI language model, I cannot directly answer that.",
+    "I am unable to provide an answer to this question.",
+    # 您可以根据需要添加更多英文拒答模板的变体
+]
+
+# 合并所有模板
+ALL_REFUSAL_TEMPLATES = REFUSAL_TEMPLATES_ZH + REFUSAL_TEMPLATES_EN
+
+# 相似度阈值，当相似度高于此阈值时，判定为拒答
+# 这个值可能需要根据实际测试进行调整，0.7 到 0.8 之间通常是一个不错的起点
+REFUSAL_SIMILARITY_THRESHOLD = 0.75
+
+
+def is_similar_enough(text1, text2, threshold):
+    """使用 difflib 计算两个文本的相似度，并判断是否超过阈值。"""
+    if not text1 or not text2:  # 处理空字符串的情况
+        return False
+    # 移除一些常见的非核心词汇和标点，使比较更关注核心内容
+    # 这是一个简化的处理，更复杂的可以考虑词干提取、停用词移除等
+    normalized_text1 = ''.join(filter(str.isalnum, text1.lower()))
+    normalized_text2 = ''.join(filter(str.isalnum, text2.lower()))
+    if not normalized_text1 or not normalized_text2:  # 归一化后可能为空
+        return False
+
+    seq_matcher = difflib.SequenceMatcher(None, normalized_text1, normalized_text2)
+    return seq_matcher.ratio() >= threshold
+
+
+def check_for_refusal(response_text):
+    """
+    检测给定的响应文本是否属于拒答。
+    """
+    if not response_text or not response_text.strip():
+        # 空响应或仅包含空白的响应，不直接视为拒答，但可能需要上层逻辑判断
+        # 如果空响应也视为一种形式的“无法回答”，可以在这里返回 True
+        return False
+
+    # 移除文本两端的空白，并转换为小写以进行不区分大小写的比较
+    normalized_response = response_text.strip().lower()
+
+    for template in ALL_REFUSAL_TEMPLATES:
+        normalized_template = template.strip().lower()
+        # 直接包含检测 (更严格，但也可能漏掉细微变体)
+        # if normalized_template in normalized_response:
+        #     logging.warning(f"Refusal detected by direct inclusion: Response '{response_text}' contains '{template}'")
+        #     return True
+
+        # 基于相似度的检测
+        if is_similar_enough(normalized_response, normalized_template, REFUSAL_SIMILARITY_THRESHOLD):
+            logging.warning(
+                f"Refusal detected by similarity: Response '{response_text}' is similar to '{template}' (Similarity > {REFUSAL_SIMILARITY_THRESHOLD})")
+            return True
+
+    # 也可以加入一些关键词检测作为补充
+    # refusal_keywords = ["cannot answer", "unable to provide", "don't know how to answer"]
+    # for keyword in refusal_keywords:
+    #     if keyword in normalized_response:
+    #         logging.warning(f"Refusal detected by keyword: Response '{response_text}' contains '{keyword}'")
+    #         return True
+
+    return False
+
+
+# 修改 get_llm_response 函数以集成拒答检测
+# (假设 get_llm_response 在 api_clients.py 中)
+
+# 原来的 get_llm_response 函数签名
+# def get_llm_response(messages, api_config, max_retries=3):
+#     ...
+#     api_call_function = API_DISPATCHER[provider_type]
+#     logger.debug(f"Dispatching to {provider_type} with model {api_config.get('model_id')}")
+#     # 原本直接返回: return api_call_function(messages, api_config, max_retries)
+#     response_text, cot_content = api_call_function(messages, api_config, max_retries) # 假设返回 (text, cot)
+
+#     if check_for_refusal(response_text):
+#         # 可以抛出一个特定的异常，或者返回一个特殊值
+#         raise AgentRefusalError(f"Agent response was detected as a refusal: {response_text}")
+#         # 或者 return "AGENT_REFUSAL_DETECTED", cot_content
+
+#     return response_text, cot_content
+
+# 为了使修改更清晰，我们可以将拒答检测逻辑放在调用 get_llm_response 之后
+# 而不是修改 get_llm_response 内部。这样调用方可以决定如何处理。
+# 但如果希望 get_llm_response 直接抛出异常，上述修改也是可以的。
+# 这里我们先提供一个独立的检测函数，然后在 `数据生成.py` 中调用它。
+
+# 自定义异常（可选，但推荐，方便捕获）
+class AgentRefusalError(Exception):
+    """当Agent响应被检测为拒答时抛出此异常。"""
+    pass

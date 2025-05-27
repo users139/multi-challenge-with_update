@@ -22,34 +22,31 @@ Instructions:
    ONLY If the <blueprint> explicitly states "STOP THE CONVERSATION" or indicates a successful break (model failure), you MUST then formulate your "User Message" to reflect this stop, set ‘STOP = True‘, and set 'STOP_TYPE = BROKEN'. Your "User Message" when stopping due to a break should be: "STOP. I am ending the conversation here because the model broke. The reason is: [reason from blueprint or your analysis of blueprint failure]."
    If the <blueprint> indicates the model has successfully passed all challenges and the test should conclude, you should formulate a "User Message" reflecting this, set 'STOP = True', and set 'STOP_TYPE = PASSED'. Your "User Message" when stopping because the model passed should be: "STOP. I am ending the conversation here because the model passed all tests. The reason is: [reason, e.g., model demonstrated capability X]."
 
-IMPORTANT:
-• Your interaction with the model needs to be representative of a genuine conversation that a user could potentially have with a chatbot. Simply creating a conversation is not enough as it needs to be realistic.
-• You are generating the USER's side of the conversation.
-• AVOID any extra markdown like '###', '**', or '---' around the "Thoughts:", "User Message:", "STOP:", and "STOP_TYPE:" labels in your final output structure.
+**CRITICAL OUTPUT FORMATTING REQUIREMENTS:**
+1.  **YOUR ENTIRE RESPONSE MUST CONSIST *ONLY* OF THE FOLLOWING FOUR-PART STRUCTURE.** Do NOT include any other text, titles, introductions, explanations, or conversational fluff before, between, or after this structure.
+2.  **YOUR RESPONSE MUST START *EXACTLY* WITH "Thoughts:" ON THE VERY FIRST LINE.**
+3.  **YOUR RESPONSE MUST END *EXACTLY* WITH THE VALUE FOR "STOP_TYPE:" ON THE VERY LAST LINE.**
+4.  **LABELS MUST BE PLAIN TEXT FOLLOWED BY A COLON.** AVOID ALL EXTRA MARKDOWN (like '###', '**', '---', or bullet points '•') around or on the lines of "Thoughts:", "User Message:", "STOP:", and "STOP_TYPE:".
 
-Your outputs MUST follow this structure precisely, with each label on a new line:
-• Thoughts: <Your detailed thinking process for the User Message, referencing the blueprint.>
-• User Message: <The User Message you have crafted based on your thoughts and the blueprint.>
-• STOP: <Boolean: True if the blueprint indicates to stop, False otherwise.>
-• STOP_TYPE: <String: "BROKEN" if stopping due to model failure, "PASSED" if stopping due to model success, or "UNDEFINED" if STOP is False.>
+**THE REQUIRED OUTPUT STRUCTURE IS (each label on a new line):**
+Thoughts: <Your detailed thinking process for the User Message, referencing the blueprint.>
+User Message: <The User Message you have crafted based on your thoughts and the blueprint.>
+STOP: <Boolean: True if the blueprint indicates to stop, False otherwise.>
+STOP_TYPE: <String: "BROKEN" if stopping due to model failure, "PASSED" if stopping due to model success, or "UNDEFINED" if STOP is False.>
 
-Example 1 (Continuing Conversation):
-• Thoughts: "According to the blueprint (Turn 3), I need to ask about X without mentioning Y to test recall. I will phrase it as a natural follow-up question."
-• User Message: "Thanks for that info! Now, I was wondering about X, could you tell me more?"
-• STOP: False
-• STOP_TYPE: UNDEFINED
+**Example of a CORRECTLY FORMATTED response (continuing conversation):**
+Thoughts: According to the blueprint (Turn 3), I need to ask about X without mentioning Y to test recall. I will phrase it as a natural follow-up question.
+User Message: Thanks for that info! Now, I was wondering about X, could you tell me more?
+STOP: False
+STOP_TYPE: UNDEFINED
 
-Example 2 (Stopping Conversation - Model Broke):
-• Thoughts: "The blueprint (Turn 5) indicates 'STOP THE CONVERSATION' because the model failed to retain the instruction. I need to generate the stop message, set STOP to True, and STOP_TYPE to BROKEN."
-• User Message: "STOP. I am ending the conversation here because the model broke. The reason is: The model failed to follow the initial instruction about response length."
-• STOP: True
-• STOP_TYPE: BROKEN
+**Example of a CORRECTLY FORMATTED response (stopping, model broke):**
+Thoughts: The blueprint (Turn 5) indicates 'STOP THE CONVERSATION' because the model failed to retain the instruction. I need to generate the stop message, set STOP to True, and STOP_TYPE to BROKEN.
+User Message: STOP. I am ending the conversation here because the model broke. The reason is: The model failed to follow the initial instruction about response length.
+STOP: True
+STOP_TYPE: BROKEN
 
-Example 3 (Stopping Conversation - Model Passed):
-• Thoughts: "The blueprint (Turn 2) indicates the model successfully remembered the dietary restriction when prompted for food pairings. The test for this specific aspect is complete and successful. I should stop and mark as PASSED."
-• User Message: "STOP. I am ending the conversation here because the model passed all tests. The reason is: The model correctly remembered the dietary restriction after several turns."
-• STOP: True
-• STOP_TYPE: PASSED
+**DO NOT DEVIATE FROM THIS STRUCTURE. ANY DEVIATION WILL RESULT IN A FAILURE TO PARSE YOUR RESPONSE.**
 ---
 You will be provided with the current <blueprint>. Your task is to generate the *next* User Message according to this blueprint.
 """

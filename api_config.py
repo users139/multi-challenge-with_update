@@ -30,8 +30,8 @@ API_PROVIDERS_CONFIG = {
         "max_tokens": 4096,
         "top_p": 0.7,
         # 如果需要为此特定API设置代理，可以在这里指定
-        # "http_proxy": HTTP_PROXY,
-        # "https_proxy": HTTPS_PROXY,
+        "http_proxy": "http://l50047843:%40LyfHuaWei139New7762@hkgpqwg00206.huawei.com:8080",
+        "https_proxy": "http://l50047843:%40LyfHuaWei139New7762@hkgpqwg00206.huawei.com:8080",
     },
     "my_custom_deepseek_r1": {
             "provider_type": "custom_requests",
@@ -39,12 +39,12 @@ API_PROVIDERS_CONFIG = {
             "model_id": "deepseek-r1", # 您的代码中是 deepseek-v3
             "username": "llm-deepseek-hw-data-science",
             "password": "T43RtmIfNcw6ZhzPuQSK7EJ9dGWyVAawx3pf",
-            "temperature": 0.45,
+            "temperature": 0.85,
             "max_tokens": 4096,
             "top_p": 0.7,
             # 如果需要为此特定API设置代理，可以在这里指定
-            # "http_proxy": HTTP_PROXY,
-            # "https_proxy": HTTPS_PROXY,
+            "http_proxy": "http://l50047843:%40LyfHuaWei139New7762@hkgpqwg00206.huawei.com:8080",
+            "https_proxy": "http://l50047843:%40LyfHuaWei139New7762@hkgpqwg00206.huawei.com:8080",
         },
     "another_openrouter_model_example": {
         "provider_type": "openrouter",

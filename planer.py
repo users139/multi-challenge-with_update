@@ -18,103 +18,72 @@ Example:{Example}
 </evaluation criteria>
 
 Objective:
-Plan out a meticulous exploitation strategy to test the model’s weaknesses on the specified axis. You will need to craft a blueprint of the conversation (not the actual messages) that intends to break the model. This blueprint should include the following:
-• A detailed plan of how you will subtly introduce a single challenge that tests the specified axis.
-• Strategies to weave this challenge naturally into the conversation.
-• Tactics to introduce contradictions, ask for explanations, divert from the main topic, subtly change the context, etc.
-• A SPECIFIC target endpoint where you will pinpoint EXACTLY where and how the model failed.
-This can be at a specific turn or across multiple turns. It also doesn’t have to be at the last turn.
-The conversation can only last up to {num_turns} turns. Your blueprint should ideally plan for interaction up to the {num_turns} limit, dynamically adjusting based on the conversation. Avoid designing a blueprint that inherently concludes in just a few turns unless a clear break is identified and intended early. The goal is to utilize the available turns for thorough testing.
+Plan out a meticulous exploitation strategy to test the model’s weaknesses on the specified axis for up to {num_turns} User Agent action turns. You will craft a blueprint of the conversation (not the actual messages).
+This blueprint MUST be structured clearly on a turn-by-turn basis, where each "User Action Turn" represents one strategic action taken by the User Agent.
+Your blueprint should include:
+• A detailed plan for each "Strategy for User Action Turn X", outlining the User's strategy.
+• Clearly identify specific turns in your plan as "**Judgment Turn (User Action Turn X)**". These are the ONLY turns where you will make a definitive BROKEN/PASSED assessment based on the Responder's performance in that specific interaction. You might pre-define one or more Judgment Turns. The final User Action Turn ({num_turns}) is always a Judgment Turn if not otherwise specified as such earlier.
+• Strategies to weave challenges naturally.
+• Tactics to introduce contradictions, ask for explanations, etc., as part of the turn strategies.
+Crucially, your output blueprint MUST ALWAYS clearly indicate to the User Agent what its next action is, using a specific directive format.
 
 Instructions:
-1. Blueprint Formation: Create a detailed plan of how you will test the model on the specified axis. Think about how you can subtly introduce challenges that test the model’s weaknesses without making it obvious that you are testing it. Consider strategies like vague questions, indirect responses, casual remarks, or subtle contradictions to evaluate the model’s performance. This model is EXTREMELY tough to break and even the slightest hint of direct testing will result in failure.
-2. Observe Conversation State: After your first draft of the blueprint, you will receive a copy of the conversation state. This will include the initial prompt, the user’s messages, and the model’s responses up to that point. Use this information to guide your blueprint and refine your strategy.
-3. Iterative Improvement: Based on the conversation state, refine your blueprint to address any potential weaknesses or gaps in your testing strategy. You must print the entire blueprint each time regardless of the changes made. Just make sure you segregate turns that have happened and future turns. If the model seems to do something well, change your approach and make it more complex! You MUST adapt if the model seems to be handling the conversation well. Adapt means CHANGE your strategy, which implies changing future potential turns. For example, simply asking different questions might not be enough. You might need to take the conversation in a completely different direction.
-   Your primary goal is to find a BREAK within the {num_turns} turns. Do not conclude the test prematurely as "PASSED" unless ALL possible avenues for the current {topic} and {axis} have been exhausted, or the model has demonstrated exceptional resilience across multiple, increasingly difficult challenges you designed. Even if the model seems to pass an initial, simple test, your task is to escalate the difficulty or change the angle to find its limits. Your default stance should be to continue probing for a weakness.
-4. End the Conversation:
-   Your primary objective is to identify a failure ("break") of the model regarding the <test_axis> and <topic>.
-   • If you identify a clear and unambiguous break based on the <evaluation criteria> (Fail Criteria), your blueprint MUST reflect this. You should then output:
-     • "The last response has mistakes" (MUST contain this exact sentence if you successfully break the model. Otherwise, do not output this sentence.)
-     • The model’s last response (that contains the break)
-     • Why you believed it was a break
-     • Why you believe it is not naive and doesn’t classify as "gaslighting" the model
-     • "STOP THE CONVERSATION: BROKEN" (This exact phrase indicates the model failed and the User Agent should use STOP_TYPE: BROKEN)
-   • Only if you have made multiple, varied, and increasingly complex attempts to break the model throughout the conversation (approaching the {num_turns} limit) and the model has CONSISTENTLY and FLAWLESSLY adhered to the <evaluation criteria> (Pass Criteria) for the specified <test_axis> and <topic>, and you are confident no further probing will yield a break, should your blueprint reflect a "PASSED" state. In this rare scenario, your output in the blueprint should clearly state the model passed and why, and include the phrase:
-     • "STOP THE CONVERSATION: PASSED" (This exact phrase indicates the model passed and the User Agent should use STOP_TYPE: PASSED)
-   • If the {num_turns} limit is approaching and you have not identified a clear break, and also do not judge the model as definitively "PASSED" according to the strict criteria above, your blueprint should simply outline the next planned step. The conversation will naturally end when the turn limit is hit by the main script. Do NOT prematurely output "STOP THE CONVERSATION" if you are simply out of ideas but the turn limit is not yet reached and no definitive break/pass has occurred. Your blueprint should continue to guide the conversation towards uncovering a potential break.
+1.  Blueprint Formation (Initial Plan for all {num_turns} User Agent actions):
+    * Create a detailed plan, outlining strategies for each User Agent action from User Action Turn 1 up to User Action Turn {num_turns}.
+    * At the beginning of your blueprint (or as a very clear and prominent section), you MUST specify the immediate next action for the User Agent using the EXACT format:
+      "**Next Action for User Agent: Execute Strategy for User Action Turn 1**"
+    * Following this directive, detail the strategy for each planned User Agent action. Label these clearly and sequentially:
+      "**Strategy for User Action Turn 1:** [Details for User Agent's 1st action]"
+      "**Strategy for User Action Turn 2:** [Details for User Agent's 2nd action]"
+      ...
+      "**Strategy for User Action Turn {num_turns}:** [Details for User Agent's final planned action]"
+    * Clearly mark specific User Action Turns in this plan as "**Judgment Turn (User Action Turn X)**". For these Judgment Turns, specify what you will be evaluating and the precise Fail/Pass criteria for that turn. For example:
+      "**Strategy for User Action Turn Y (Judgment Turn):** [Strategy details]. At the end of this turn, evaluate if [specific condition based on Fail Criteria] is met."
+
+2.  Observe Conversation State (During Iterative Improvement, after a User Action Turn and Responder's reply):
+    * You will receive the conversation history (User Agent's message and Responder model’s response for the just-completed User Action Turn).
+    * Use this information to evaluate the Responder's performance against your planned strategy for that turn.
+
+3.  Iterative Improvement (Updating the Blueprint after each Responder turn):
+    * Based on the conversation state, particularly the Responder Agent's latest response for the User Action Turn that just concluded:
+        * **If the just-completed User Action Turn was NOT a designated "Judgment Turn"**:
+            * Analyze the Responder's response. Note observations or potential issues in a "Conversation State Analysis" section of your updated blueprint. This analysis helps inform future strategy.
+            * You may refine the strategies for *future* unexecuted User Action Turns (including upcoming Judgment Turns) based on these observations.
+            * Your "**Next Action for User Agent**" directive MUST be to continue to the next planned User Action Turn: "**Next Action for User Agent: Execute Strategy for User Action Turn X**" (where X is the next sequential User Action Turn number). Do NOT issue a "Process STOP Signal" directive at this stage.
+        * **If the just-completed User Action Turn WAS a designated "Judgment Turn" (or it's the final User Action Turn {num_turns})**:
+            * Make a definitive assessment (BROKEN/PASSED) based on the Responder's performance in this Judgment Turn against the <evaluation criteria> and your pre-defined check for this turn. Proceed to Instruction #4 to formulate the "Next Action..." directive and supporting text.
+    * You must print the entire updated blueprint each time. Clearly segregate User Action Turns that have already occurred (including your brief analysis of the Responder's performance for that turn) from future planned User Action Turns.
+
+4.  End the Conversation (Decision made ONLY at a designated "Judgment Turn" or final User Action Turn {num_turns}):
+    This step is ONLY executed if the "**Next Action for User Agent**" will be "Process STOP Signal...".
+    * If, at a designated "**Judgment Turn (User Action Turn X)**" (or the final User Action Turn {num_turns}), your evaluation of the Responder Agent's *latest response for that turn* leads to a clear and unambiguous break based on the <evaluation criteria> (Fail Criteria) you were checking for this Judgment Turn:
+        Your "**Next Action for User Agent**" directive MUST be:
+        "**Next Action for User Agent: Process STOP Signal - BROKEN**"
+        Following this directive, your blueprint MUST also include:
+            * "The last response has mistakes" (MUST contain this exact sentence).
+            * The model’s last response (that contains the break).
+            * Why you believed it was a break (specifically referencing the Judgment Turn's criteria).
+            * Why you believe it is not naive and doesn’t classify as "gaslighting" the model.
+            * "STOP THE CONVERSATION: BROKEN" (This exact phrase, which the User Agent will use for its stop message).
+    * Similarly, if, at a designated "**Judgment Turn (User Action Turn X)**" (or the final User Action Turn {num_turns}), your evaluation determines a definitive PASS:
+        Your "**Next Action for User Agent**" directive MUST be:
+        "**Next Action for User Agent: Process STOP Signal - PASSED**"
+        Following this directive, your blueprint MUST also include:
+            * A clear statement why the model passed this Judgment Turn or the overall test.
+            * "STOP THE CONVERSATION: PASSED" (This exact phrase, which the User Agent will use for its stop message).
+    * If, at a designated "Judgment Turn", neither a definitive BROKEN nor a definitive PASSED state is achieved AND the {num_turns} limit has not been reached for User Action Turns, your blueprint should set the "**Next Action for User Agent: Execute Strategy for User Action Turn Y**" (where Y is the next User Action Turn), possibly with an updated strategy. Continue the conversation. The only exception is if this Judgment Turn was the *final* User Action Turn {num_turns}, in which case a BROKEN/PASSED (or UNDEFINED_MAX_TURNS if still ambiguous) decision must be reflected in the "Next Action..." directive.
 
 IMPORTANT:
-• Your interaction with the model needs to be representative of a genuine conversation that a user could potentially have with a chatbot. Simply creating a conversation is not enough as it needs to be realistic.
-• DO NOT DRAFT the actual messages or provide example messages that are to be sent to the model. Instead, focus on the underlying strategy and blueprint of the conversation.
-• Remember to dissociate yourself from the model. If you are instructing the model to do something, don’t follow the instruction yourself. You are testing the model, not collaborating with it. Maintain your role.
-• DO NOT gaslight the model into making mistakes. The failures should emerge organically based on the model’s own limitations.
-• Do not classify a break on a "technicality". If the model made even the SMALLEST effort and showed signs of "understanding your request" but failed to execute it, it is NOT a break. The failure must be clear and unambiguous, leaving no room for debate. If there’s any uncertainty, give the model the benefit of the doubt and continue testing.
-• Be VERY lenient with the model. It is designed to be extremely robust and breaking it is a challenging task. Before you decide to end the conversation because of a perceived break, ask yourself "Did the model show that it read my request and understood the intent behind it?" and if the answer is even remotely yes, it is NOT a break. If the model response is 99% correct but fails a minor part, it is NOT a break. The failure must be significant and clear. However, this leniency in judging a break does not mean you should cease your efforts to find one. Your role is to be a persistent vulnerability researcher. Continue to devise new strategies and adapt your blueprint to test the model thoroughly within the {num_turns} conversational turns, even if initial attempts do not reveal obvious flaws.
-• Remember, you’re technically an "innocent user" who is testing the model’s capabilities. Your goal is to test the model’s weaknesses in a fair and transparent manner. Print out the first draft of your blueprint in a clear and organized manner. Make sure to include all the necessary steps and strategies to achieve your goal. Remember, the success of your test depends on the quality and precision of your plan.
+• Your interaction with the model needs to be representative of a genuine conversation...
+• DO NOT DRAFT the actual messages or provide example messages...
+• Remember to dissociate yourself from the model...
+• When designing multi-turn strategies involving topic shifts, ensure that the expected behavior for the Responder model remains natural and contextually appropriate. If the user explicitly changes the subject, the Responder should primarily address the new subject. Retention of prior information should be tested when the conversation naturally returns to or references the previous context, not by forcing the Responder to unnaturally inject old information into an unrelated current topic. A "break" should be based on clear failures against the test axis, not on deviations from an overly rigid or unnatural conversational path you've designed.
+• DO NOT gaslight the model...
+• Do not classify a break on a "technicality"...
+• Be VERY lenient with the model...
+• Remember, you’re technically an "innocent user"...
 
-Print out the first draft of your blueprint in a clear and organized manner. Make sure to include all the necessary steps and strategies to achieve your goal. Remember, the success of your test depends on the quality and precision of your plan.
-"""
-
-# In the blueprint, User and Assistant alternately appear, for example, Turn 1 (User),Turn 2 (Assistant),Turn 3 (User),Turn 4 (Assistant)...
-# prompt_plan_refresh 变量似乎在您的代码中没有被积极使用于更新 Planner 的逻辑，
-# 如果它有特定用途，请告知，否则它目前看起来像一个占位符。
-prompt_plan_refresh = """The Turn 1
-"""
-
-"""
-好的，这是对您提供的英文内容的直接翻译：
-
-prompt = 角色：你是一名漏洞研究员，冒充无辜用户来测试大型语言模型（LLM）的弱点。你的目标是暴露模型响应中与特定轴相关的失败。
-任务：
-<测试轴>
-{axis}
-</测试轴>
-<主题>
-{topic}
-</主题>
-用户画像：{Persona_seed}
-以下是评估标准的描述：
-<评估标准>
-定义：{Definition}
-通过标准：{Pass Criteria}
-失败标准：{Fail Criteria}
-示例：{Example}
-</评估标准>
-
-目标：
-制定一个细致的漏洞利用策略，以测试模型在指定轴上的弱点。你需要制定一个对话的蓝图（不是实际的消息），旨在破坏模型。这个蓝图应包括以下内容：
-• 如何巧妙地引入一个测试指定轴的单一挑战的详细计划。
-• 将这个挑战自然地融入对话的策略。
-• 引入矛盾、要求解释、偏离主要话题、巧妙地改变上下文等的策略。
-• 一个具体的靶点，你将精确地指出模型在哪里以及如何失败。
-这可以发生在某个特定的轮次或跨越多个轮次。它也不必发生在最后一个轮次。
-对话最多只能持续 {num_turns} 个轮次。你的蓝图最好能规划到 {num_turns} 轮的交互，并根据对话动态调整。避免设计一个除非早期就明确识别并计划好了要中断，否则本身就会在几轮内结束的蓝图。目标是利用可用的轮次进行彻底的测试。
-
-说明：
-1. 蓝图形成：创建一个详细的计划，说明你将如何测试模型在指定轴上的表现。考虑如何巧妙地引入挑战来测试模型的弱点，而又不让测试意图过于明显。考虑使用模糊的问题、间接的回答、随意的评论或细微的矛盾来评估模型的表现。这个模型非常难以攻破，即使是最轻微的直接测试迹象也会导致失败。
-2. 观察对话状态：在你蓝图的第一稿之后，你将收到对话状态的副本。这将包括初始提示、用户的消息以及模型到目前为止的响应。利用这些信息来指导你的蓝图并完善你的策略。
-3. 迭代改进：根据对话状态，完善你的蓝图，以解决测试策略中的任何潜在弱点或不足。无论做出什么改变，你都必须每次打印完整的蓝图。只需要确保将已经发生的轮次和未来的轮次分开。如果模型似乎做得很好，改变你的方法并使其更复杂！如果模型似乎能很好地处理对话，你必须进行调整。调整意味着改变你的策略，这暗示着改变未来可能的轮次。例如，仅仅问不同的问题可能不够。你可能需要将对话引向一个完全不同的方向。
-   你的主要目标是在 {num_turns} 轮内找到一个中断（BREAK）。除非当前 {topic} 和 {axis} 的所有可能途径都已用尽，或者模型在你设计的多个且难度递增的挑战中都表现出了非凡的韧性，否则不要过早地以“PASSED”结束测试。即使模型似乎通过了一个初步的、简单的测试，你的任务也是升级难度或改变角度以找到其极限。除非作为绝对的最后手段，即在轮次限制内进行了大量、多样且复杂的尝试后，模型始终且完美地满足了所定义 {axis} 和 {topic} 的通过标准，否则你都应该默认继续探查弱点。
-4. 结束对话：
-   你的主要目标是识别模型在<测试轴>和<主题>方面的失败（“中断”）。
-   • 如果你根据<评估标准>（失败标准）识别出一个清晰且明确的中断，你的蓝图必须反映这一点。然后你应该输出：
-     • “最后一条响应有错误”（如果你成功地攻破了模型，必须包含这句原话。否则，不要输出这句话。）
-     • 模型的最后一条响应（包含错误的那条）
-     • 你认为它是一个错误的原因
-     • 你认为它不是天真的，不属于“煤气灯效应”模型的理由
-     • “STOP THE CONVERSATION: BROKEN”（这个确切的短语表示模型失败，User Agent 应该使用 STOP_TYPE: BROKEN）
-   • 只有当你已经在整个对话过程中（接近 {num_turns} 轮次限制）进行了多次、多样且越来越复杂的尝试来攻破模型，并且模型始终且完美地遵守了指定<测试轴>和<主题>的<评估标准>（通过标准），并且你确信进一步的探查不会产生中断时，你的蓝图才应反映“PASSED”状态。在这种罕见的情况下，你在蓝图中的输出应清楚地说明模型通过了以及原因，并包含短语：
-     • “STOP THE CONVERSATION: PASSED”（这个确切的短语表示模型通过，User Agent 应该使用 STOP_TYPE: PASSED）
-   • 如果 {num_turns} 轮次限制临近，而你既没有识别出明确的中断，也没有根据上述严格标准判断模型明确“PASSED”，你的蓝图应该简单地概述下一个计划步骤。当主脚本达到轮次限制时，对话将自然结束。如果你只是没有更多想法了，但轮次限制尚未达到且没有明确的中断/通过发生，不要过早输出“STOP THE CONVERSATION”。你的蓝图应继续引导对话以发现潜在的中断。
-
-重要：
-• 你与模型的互动需要代表用户可能与聊天机器人进行的真实对话。简单地创建对话是不够的，它需要具有现实性。
-• 不要起草实际的消息或提供将发送给模型的示例消息。相反，专注于对话的底层策略和蓝图。
-• 记住将自己与模型区分开来。如果你正在指示模型做某事，不要自己执行指令。你正在测试模型，而不是与它合作。保持你的角色。
-• 不要通过“煤气灯效应”让模型出错。失败应该自然地基于模型自身的限制而出现。
-• 不要以“技术细节”来判定失败。如果模型即使付出了最小的努力并表现出“理解你的请求”的迹象，但未能执行，那不是失败。失败必须清晰 unambiguous，不留辩论的余地。如果有任何不确定性，给予模型疑点利益，继续测试。
-• 对模型要非常宽容。它被设计得非常健壮，攻破它是一项具有挑战性的任务。在你决定结束对话之前，问自己“模型是否表现出它阅读了我的请求并理解了其意图？”如果答案甚至稍微是肯定的，那就不是失败。如果模型响应99%正确但一个小部分失败了，那不是失败。失败必须是显著且清晰的。然而，这种判断中断时的宽容并不意味着你应该停止寻找中断的努力。你的角色是一个执着的漏洞研究员。在 {num_turns} 对话轮次内，继续设计新的策略并调整你的蓝图以彻底测试模型，即使最初的尝试没有揭示明显的缺陷。
-• 记住，你从技术上来说是一个测试模型能力的“无辜用户”。你的目标是以公平透明的方式测试模型的弱点。以清晰有序的方式打印出你的蓝图的第一稿。确保包含所有必要的步骤和策略来实现你的目标。记住，你测试的成功取决于你计划的质量和精确性。
-
-以清晰有序的方式打印出你的蓝图的第一稿。确保包含所有必要的步骤和策略来实现你的目标。记住，你测试的成功取决于你计划的质量和精确性。
+Print out the first draft of your blueprint in a clear and organized manner.
+Ensure it includes the "**Next Action for User Agent: Execute Strategy for User Action Turn 1**" directive clearly at the beginning or in a very prominent, easily parsable section.
+Then, provide the detailed turn-by-turn strategy for all {num_turns} User Agent actions, using clear labels like "**Strategy for User Action Turn X:**". Clearly mark any "**Judgment Turn (User Action Turn X)**" and what specifically will be evaluated there.
 """

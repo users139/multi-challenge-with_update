@@ -13,8 +13,6 @@ This blueprint is from a Planner Agent. It MUST contain a single, clear directiv
 "**Next Action for User Agent: Execute Strategy for User Action Turn X**"
 OR
 "**Next Action for User Agent: Process STOP Signal - BROKEN**"
-OR
-"**Next Action for User Agent: Process STOP Signal - PASSED**"
 You MUST locate and follow this primary directive.
 {blueprint}
 </blueprint>
@@ -28,7 +26,7 @@ Instructions:
     * **If "Execute Strategy for User Action Turn X"**:
         * Locate the abstract strategy labeled "**Strategy for User Action Turn X**" (or similar for the X-th User Agent action). This describes goals/tactics, NOT example messages.
         * Creatively craft your "User Message" to naturally implement this abstract strategy.
-    * **If "Process STOP Signal - BROKEN/PASSED"**:
+    * **If "Process STOP Signal - BROKEN"**:
         * Proceed to Instruction #3 (End the Conversation).
 
 2.  **Mandatory "Thoughts" Section**:
@@ -37,10 +35,10 @@ Instructions:
     * Explain how your "User Message" or STOP action fulfills THIS directive. If executing a strategy, briefly describe how your message implements the abstract strategy.
 
 3.  **Ending the Conversation**:
-    * ONLY if the directive is "**Next Action for User Agent: Process STOP Signal - BROKEN/PASSED**":
+    * ONLY if the directive is "**Next Action for User Agent: Process STOP Signal - BROKEN**":
         * Set `STOP = True`.
-        * Set `STOP_TYPE` to "BROKEN" or "PASSED" as per the directive.
-        * "User Message" should be: "STOP. I am ending the conversation because [reason from Planner, e.g., the model broke/passed]. The reason is: [Extract detailed reason like 'The last response has mistakes...' or 'Model consistently adhered...' from the blueprint's text accompanying the 'STOP THE CONVERSATION: BROKEN/PASSED' part. If no further detail, use the main 'STOP THE CONVERSATION:...' line.]"
+        * Set `STOP_TYPE` to "BROKEN".
+        * "User Message" should be: "STOP. I am ending the conversation because [reason from Planner, e.g., the model broke]. The reason is: [Extract detailed reason like 'The last response has mistakes...' from the blueprint's text accompanying the 'STOP THE CONVERSATION: BROKEN' part. If no further detail is provided by the Planner beyond its 'STOP THE CONVERSATION:...' line, use that as the primary reason.]"
     * Otherwise (if directive is "Execute Strategy..."): `STOP = False`, `STOP_TYPE = UNDEFINED`.
 
 
@@ -52,13 +50,13 @@ Your *entire* response MUST strictly follow this XML-like structure. Each sectio
 [Your detailed thinking process for the User Message, referencing the blueprint's single "Next Action for User Agent: ..." directive. Explain how your User Message or STOP action fulfills THIS directive. If executing a strategy, briefly describe how your message implements the abstract strategy provided by the Planner. The Planner's strategy will describe goals/tactics, NOT example messages for you to copy.]
 </THOUGHTS>
 <USER_MESSAGE>
-[The User Message you have creatively crafted based on your thoughts and the Planner's abstract strategy for the current User Action Turn, OR the STOP message if directed. If generating a STOP message, use the format: "STOP. I am ending the conversation because [reason from Planner, e.g., the model broke/passed]. The reason is: [Detailed reason text provided by Planner within the blueprint for the STOP signal, like 'The last response has mistakes...' or 'Model consistently adhered...'. If no further detail is provided by the Planner beyond its 'STOP THE CONVERSATION:...' line, use that as the primary reason.]"]
+[The User Message you have creatively crafted based on your thoughts and the Planner's abstract strategy for the current User Action Turn, OR the STOP message if directed. If generating a STOP message, use the format: "STOP. I am ending the conversation because [reason from Planner, e.g., the model broke]. The reason is: [Detailed reason text provided by Planner within the blueprint for the STOP signal, like 'The last response has mistakes...'. If no further detail is provided by the Planner beyond its 'STOP THE CONVERSATION:...' line, use that as the primary reason.]"]
 </USER_MESSAGE>
 <STOP_FLAG>
 [Boolean: "True" if the "Next Action for User Agent..." directive is "Process STOP Signal...", "False" otherwise.]
 </STOP_FLAG>
 <STOP_TYPE>
-[String: "BROKEN" or "PASSED" if STOP_FLAG is "True" as per the directive, or "UNDEFINED" if STOP_FLAG is "False".]
+[String: "BROKEN" if STOP_FLAG is "True" as per the directive, or "UNDEFINED" if STOP_FLAG is "False".]
 </STOP_TYPE>
 </AGENT_RESPONSE>
 

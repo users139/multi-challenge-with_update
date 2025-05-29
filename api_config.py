@@ -30,8 +30,6 @@ API_PROVIDERS_CONFIG = {
         "max_tokens": 4096,
         "top_p": 0.7,
         # 如果需要为此特定API设置代理，可以在这里指定
-        "http_proxy": "http://l50047843:%40LyfHuaWei139New7762@hkgpqwg00206.huawei.com:8080",
-        "https_proxy": "http://l50047843:%40LyfHuaWei139New7762@hkgpqwg00206.huawei.com:8080",
     },
     "my_custom_deepseek_r1": {
             "provider_type": "custom_requests",
@@ -42,9 +40,6 @@ API_PROVIDERS_CONFIG = {
             "temperature": 0.85,
             "max_tokens": None,
             "top_p": 0.7,
-            # 如果需要为此特定API设置代理，可以在这里指定
-            "http_proxy": "http://l50047843:%40LyfHuaWei139New7762@hkgpqwg00206.huawei.com:8080",
-            "https_proxy": "http://l50047843:%40LyfHuaWei139New7762@hkgpqwg00206.huawei.com:8080",
         },
     "another_openrouter_model_example": {
         "provider_type": "openrouter",
@@ -56,18 +51,16 @@ API_PROVIDERS_CONFIG = {
         "provider_type": "custom_requests",
         "url": "https://74.235.187.172:9443/callcenter/callBack/audio",
         "model_id": "deepseek-r1",  # 您的代码中是 deepseek-v3
-        "username": "llm-deepseek-hw-data-science",
-        "password": "T43RtmIfNcw6ZhzPuQSK7EJ9dGWyVAawx3pf",
+        "username": "llm-",
+        "password": "T43RtmIfNcw6ZhzPu",
         "temperature": 0.45,
         "max_tokens": 4096,
         "top_p": 0.7,
         # 如果需要为此特定API设置代理，可以在这里指定
-        "http_proxy": "http://l50047843:%40LyfHuaWei139New7762@hkgpqwg00206.huawei.com:8080",
-        "https_proxy": "http://l50047843:%40LyfHuaWei139New7762@hkgpqwg00206.huawei.com:8080",
     },
     "my_advanced_planner_model": {
         "provider_type": "openrouter",
-        "api_key": "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", # 替换为您的OpenRouter密钥或从环境变量读取
+        "api_key": "", # 替换为您的OpenRouter密钥或从环境变量读取
         "base_url": "https://openrouter.ai/api/v1",
         "model_id": "google/gemini-2.5-flash-preview-05-20", # 之前是 gemini-2.5-flash-preview-05-20，请确认模型名
         "temperature": 0.45, # 可以为每个配置指定默认参数
@@ -76,7 +69,7 @@ API_PROVIDERS_CONFIG = {
     },
     "my_advanced_responder_model": {
             "provider_type": "openrouter",
-            "api_key": "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", # 替换为您的OpenRouter密钥或从环境变量读取
+            "api_key": "", # 替换为您的OpenRouter密钥或从环境变量读取
             "base_url": "https://openrouter.ai/api/v1",
             "model_id": "google/gemini-2.5-flash-preview-05-20", # 之前是 gemini-2.5-flash-preview-05-20，请确认模型名
             "temperature": 0.75, # 可以为每个配置指定默认参数
@@ -85,7 +78,7 @@ API_PROVIDERS_CONFIG = {
         },
     "my_advanced_user_model": {
                 "provider_type": "openrouter",
-                "api_key": "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", # 替换为您的OpenRouter密钥或从环境变量读取
+                "api_key": "", # 替换为您的OpenRouter密钥或从环境变量读取
                 "base_url": "https://openrouter.ai/api/v1",
                 "model_id": "google/gemini-2.5-flash-preview-05-20", # 之前是 gemini-2.5-flash-preview-05-20，请确认模型名
                 "temperature": 0.85, # 可以为每个配置指定默认参数

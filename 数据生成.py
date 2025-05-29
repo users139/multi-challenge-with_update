@@ -6,8 +6,6 @@ import random
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FuturesTimeoutError
 import os
-import re
-import time  # 新增导入
 
 # 修改导入，使用新的api_clients模块
 from api_clients import get_llm_response, check_for_refusal, \
@@ -22,11 +20,11 @@ from ours.from_yuxian_chinese_openrouter_new_prompts_with_multimodel.config impo
     PERSONL_SEEDS_LIST,
 )
 from ours.from_yuxian_chinese_openrouter_new_prompts_with_multimodel.api_config import (
-    API_PROVIDERS_CONFIG,  # 导入API配置
+    # 导入API配置
     DEFAULT_AGENT_APIS  # 导入默认的Agent API分配
 )
 from planer import prompt as PLANNER_BASE_PROMPT
-from user import prompt as USER_BASE_PROMPT
+from ours.from_yuxian_chinese_openrouter_new_prompts_with_multimodel.历史提示词.user import prompt as USER_BASE_PROMPT
 
 # Setup logging for better traceability
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(threadName)s - %(levelname)s - %(message)s')
@@ -138,7 +136,7 @@ def parse_user_agent_response(response_text):
 
     if stop_type_content is not None:
         stop_type_str = stop_type_content.upper()
-        if stop_type_str not in ["BROKEN", "UNDEFINED"]:  # 移除了 "PASSED"
+        if stop_type_str not in ["BROKEN", "PASSED", "UNDEFINED"]:  # 移除了 "PASSED"
             logging.warning(f"Unexpected value for <STOP_TYPE>: '{stop_type_str}'. Defaulting based on stop_flag.")
             stop_type_str = "BROKEN" if stop_flag else "UNDEFINED"
     else:  # STOP_TYPE tag content not found
@@ -152,8 +150,9 @@ def parse_user_agent_response(response_text):
     # Final consistency checks
     if not stop_flag and stop_type_str != "UNDEFINED":
         stop_type_str = "UNDEFINED"
-    elif stop_flag and stop_type_str != "BROKEN":  # 如果是停止，但类型不是BROKEN (比如是UNDEFINED或意外的PASSED)
-        logging.warning(f"STOP_FLAG is True, but STOP_TYPE is '{stop_type_str}' (not BROKEN). Forcing to BROKEN.")
+    elif stop_flag and stop_type_str == "UNDEFINED":  # 如果是停止，但类型不是BROKEN (比如是UNDEFINED或意外的PASSED)
+        logging.warning(
+            f"STOP_FLAG is True, but STOP_TYPE is UNDEFINED. Defaulting to BROKEN. Full response: {original_for_log}")
         stop_type_str = "BROKEN"
 
     if user_message_str is not None and user_message_str.strip() == "**" and not user_message_str.startswith("Error:"):
@@ -281,7 +280,7 @@ def generate_single_conversation_sample(
     output_file_errored = os.path.join(output_dir, f"{axis_filename_prefix}_errored.jsonl")
 
     try:
-        for turn_number in range(max_dialogue_turns):  # 这个循环仍然是 User-Agent 交互轮次
+        for turn_number in range(max_dialogue_turns + 1):  # 这个循环仍然是 User-Agent 交互轮次
             logging.info(f"[{sample_log_id}] User-Agent Interaction Turn {turn_number + 1}/{max_dialogue_turns}")
 
             # 1. Planner Agent
@@ -393,15 +392,16 @@ def generate_single_conversation_sample(
                 })
                 # ... (文件保存逻辑) ...
                 file_to_save = output_file_errored  # Default, will be overwritten
-                if stop_type_from_agent == "BROKEN":
+                if stop_type_from_agent == "PASSED":
+                    file_to_save = output_file_passed_by_agent
+                elif stop_type_from_agent == "BROKEN":
                     file_to_save = output_file_successful_break
-                else:  # Should ideally not happen if User Agent only stops on BROKEN or its own turn limit (which is handled by main loop)
-                    # However, if parse_user_agent_response defaults an unknown stop_type to BROKEN when stop_flag is True, this is okay.
+                else:  # UNDEFINED or other, treat as BROKEN for saving purposes if it's a stop
                     logging.warning(
-                        f"[{sample_log_id}] User Agent signaled STOP but type was not BROKEN ('{stop_type_from_agent}'). Defaulting to broken file.")
-                    file_to_save = output_file_successful_break  # Or an error file
+                        f"[{sample_log_id}] Unknown or UNDEFINED stop_type '{stop_type_from_agent}' with stop_flag True. Defaulting to broken file.")
+                    file_to_save = output_file_successful_break  # Or output_file_errored
                     full_generation_log[-1][
-                        "status"] = f"stopped_by_agent_as_{stop_type_from_agent}_or_error (classified as broken)"
+                        "status"] = f"stopped_by_agent_as_{stop_type_from_agent}_or_unknown (classified as broken)"
 
                 with open(file_to_save, "a", encoding="utf-8") as f:
                     f.write(json.dumps(full_generation_log, ensure_ascii=False, indent=2) + "\n")

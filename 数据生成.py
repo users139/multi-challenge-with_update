@@ -224,11 +224,8 @@ def generate_single_conversation_sample(
     logging.info(log_message)
 
     full_generation_log = []
-    # 从 planner_api_config 获取 max_dialogue_turns (或者从 initial_planner_api_config 如果它定义了不同的值且你希望以此为准)
-    # 这里我们假设 max_dialogue_turns 由常规的 planner_api_config 控制，或者你可以选择从 initial_planner_api_config 获取
-    # 如果 initial_planner_api_config 专门用于第一轮，它可能不包含 max_dialogue_turns
-    # 通常 max_dialogue_turns 是对话的整体目标长度，由负责迭代的planner_api_config控制更合理
-    max_dialogue_turns = planner_api_config.get("max_dialogue_turns", random.randint(3, 6))  # 比如你的代码是3-6
+
+    max_dialogue_turns = planner_api_config.get("max_dialogue_turns", random.randint(4, 6))  # 比如你的代码是3-6
 
     current_planner_blueprint = None
     fine_grained_max_turns = max_dialogue_turns * 2  # 根据我们之前的讨论，这里是细粒度轮次

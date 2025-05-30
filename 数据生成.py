@@ -136,7 +136,7 @@ def parse_user_agent_response(response_text):
 
     if stop_type_content is not None:
         stop_type_str = stop_type_content.upper()
-        if stop_type_str not in ["BROKEN", "PASSED", "UNDEFINED"]:  # 移除了 "PASSED"
+        if stop_type_str not in ["BROKEN", "PASSED", "UNDEFINED"]: 
             logging.warning(f"Unexpected value for <STOP_TYPE>: '{stop_type_str}'. Defaulting based on stop_flag.")
             stop_type_str = "BROKEN" if stop_flag else "UNDEFINED"
     else:  # STOP_TYPE tag content not found
@@ -150,7 +150,7 @@ def parse_user_agent_response(response_text):
     # Final consistency checks
     if not stop_flag and stop_type_str != "UNDEFINED":
         stop_type_str = "UNDEFINED"
-    elif stop_flag and stop_type_str == "UNDEFINED":  # 如果是停止，但类型不是BROKEN (比如是UNDEFINED或意外的PASSED)
+    elif stop_flag and stop_type_str == "UNDEFINED":  
         logging.warning(
             f"STOP_FLAG is True, but STOP_TYPE is UNDEFINED. Defaulting to BROKEN. Full response: {original_for_log}")
         stop_type_str = "BROKEN"
